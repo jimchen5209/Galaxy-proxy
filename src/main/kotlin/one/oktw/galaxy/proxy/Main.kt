@@ -113,20 +113,13 @@ class Main {
                 if (it.player.currentServer.isPresent || !this::lobby.isInitialized) return@register // Ignore exist player
 
                 it.result = ServerPreConnectEvent.ServerResult.allowed(lobby)
-                ResourcePackHelper.trySendResourcePack(it.player, "lobby")
             }
 
             proxy.eventManager.register(this, ServerConnectedEvent::class.java) {
                 println("ServerConnectedEvent")
                 if (it.previousServer.isPresent) println(it.previousServer.get().serverInfo.name)
                 println(it.server.serverInfo.name)
-//                if (it.previousServer == null) ResourcePackHelper.trySendResourcePack(it.player, "lobby")
-            }
-
-            proxy.eventManager.register(this, ServerPostConnectEvent::class.java) {
-                println("ServerConnectedEvent")
-                println(it.previousServer?.serverInfo?.name)
-//                if (it.previousServer == null) ResourcePackHelper.trySendResourcePack(it.player, "lobby")
+                if (!it.previousServer.isPresent) ResourcePackHelper.trySendResourcePack(it.player, "lobby")
             }
 
             // Connect back to lobby on disconnect from galaxies
