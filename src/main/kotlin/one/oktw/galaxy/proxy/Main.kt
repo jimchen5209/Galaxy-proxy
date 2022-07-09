@@ -113,9 +113,14 @@ class Main {
             }
 
             @Suppress("UnstableApiUsage") proxy.eventManager.register(this, ServerPostConnectEvent::class.java) {
-                if (it.previousServer == null) ResourcePackHelper.trySendResourcePack(it.player, "lobby")
-                println(it.previousServer?.serverInfo?.name)
-                println(it.player.currentServer.get().serverInfo.name)
+                if (it.player.currentServer.get().serverInfo.name == "galaxy-lobby") {
+                    ResourcePackHelper.trySendResourcePack(it.player, "lobby")
+                } else {
+                    // TODO: Check Galaxy Type
+                    if (it.previousServer?.serverInfo?.name != "galaxy-lobby" && it.player.currentServer.get().serverInfo.name != "galaxy-lobby") return@register
+
+                    ResourcePackHelper.trySendResourcePack(it.player, "normal_galaxy")
+                }
             }
 
             // Connect back to lobby on disconnect from galaxies
@@ -124,7 +129,6 @@ class Main {
                     it.result = KickedFromServerEvent.DisconnectPlayer.create(it.serverKickReason.orElse(Component.empty()))
                 } else {
                     it.result = KickedFromServerEvent.RedirectPlayer.create(lobby, Component.empty())
-                    ResourcePackHelper.trySendResourcePack(it.player, "lobby")
                 }
             }
 
