@@ -3,6 +3,8 @@ package one.oktw.galaxy.proxy
 import com.google.inject.Inject
 import com.velocitypowered.api.event.Subscribe
 import com.velocitypowered.api.event.player.KickedFromServerEvent
+import com.velocitypowered.api.event.player.ServerConnectedEvent
+import com.velocitypowered.api.event.player.ServerPostConnectEvent
 import com.velocitypowered.api.event.player.ServerPreConnectEvent
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent
 import com.velocitypowered.api.plugin.Plugin
@@ -26,6 +28,7 @@ import one.oktw.galaxy.proxy.redis.RedisClient
 import one.oktw.galaxy.proxy.resourcepack.ResourcePackHelper
 import org.slf4j.Logger
 import java.net.InetSocketAddress
+import kotlin.jvm.optionals.getOrNull
 import kotlin.system.exitProcess
 
 @Plugin(id = "galaxy-proxy", name = "Galaxy proxy side plugin", version = "1.0-SNAPSHOT")
@@ -111,6 +114,19 @@ class Main {
 
                 it.result = ServerPreConnectEvent.ServerResult.allowed(lobby)
                 ResourcePackHelper.trySendResourcePack(it.player, "lobby")
+            }
+
+            proxy.eventManager.register(this, ServerConnectedEvent::class.java) {
+                println("ServerConnectedEvent")
+                if (it.previousServer.isPresent) println(it.previousServer.get().serverInfo.name)
+                println(it.server.serverInfo.name)
+//                if (it.previousServer == null) ResourcePackHelper.trySendResourcePack(it.player, "lobby")
+            }
+
+            proxy.eventManager.register(this, ServerPostConnectEvent::class.java) {
+                println("ServerConnectedEvent")
+                println(it.previousServer?.serverInfo?.name)
+//                if (it.previousServer == null) ResourcePackHelper.trySendResourcePack(it.player, "lobby")
             }
 
             // Connect back to lobby on disconnect from galaxies
