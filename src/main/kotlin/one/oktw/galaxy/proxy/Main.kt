@@ -3,7 +3,6 @@ package one.oktw.galaxy.proxy
 import com.google.inject.Inject
 import com.velocitypowered.api.event.Subscribe
 import com.velocitypowered.api.event.player.KickedFromServerEvent
-import com.velocitypowered.api.event.player.ServerConnectedEvent
 import com.velocitypowered.api.event.player.ServerPreConnectEvent
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent
 import com.velocitypowered.api.plugin.Plugin
@@ -111,10 +110,7 @@ class Main {
                 if (it.player.currentServer.isPresent || !this::lobby.isInitialized) return@register // Ignore exist player
 
                 it.result = ServerPreConnectEvent.ServerResult.allowed(lobby)
-            }
-
-            proxy.eventManager.register(this, ServerConnectedEvent::class.java) {
-                if (it.previousServer == null) ResourcePackHelper.trySendResourcePack(it.player, "lobby")
+                ResourcePackHelper.trySendResourcePack(it.player, "lobby")
             }
 
             // Connect back to lobby on disconnect from galaxies
