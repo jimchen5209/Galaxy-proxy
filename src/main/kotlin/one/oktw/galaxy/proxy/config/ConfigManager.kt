@@ -9,10 +9,12 @@ import one.oktw.galaxy.proxy.config.model.ProxyConfig
 import one.oktw.galaxy.proxy.config.model.RedisConfig
 import java.io.InputStream
 import java.net.URI
+import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 class ConfigManager(private val basePath: Path = Paths.get("config")) {
@@ -62,6 +64,7 @@ class ConfigManager(private val basePath: Path = Paths.get("config")) {
                             galaxiesResourcePack[galaxyName] = galaxies[galaxyName]?.let { spec ->
                                 if (spec.ResourcePack.isNotBlank()) {
                                     return@let ResourcePackInfo.resourcePackInfo()
+                                        .id(UUID.nameUUIDFromBytes(spec.ResourcePack.toByteArray(StandardCharsets.UTF_8))) // From Minecraft
                                         .uri(URI(spec.ResourcePack))
                                         .computeHashAndBuild()
                                         .get()
