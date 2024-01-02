@@ -63,11 +63,16 @@ class ConfigManager(private val basePath: Path = Paths.get("config")) {
                         val packInfo = galaxies[galaxyName]?.let { spec ->
                             main.logger.info("ResourcePack: ${spec.ResourcePack}")
                             if (spec.ResourcePack.isNotBlank()) {
-                                return@let ResourcePackInfo.resourcePackInfo()
-                                    .id(UUID.nameUUIDFromBytes(spec.ResourcePack.toByteArray(StandardCharsets.UTF_8))) // From Minecraft
-                                    .uri(URI(spec.ResourcePack))
-                                    .computeHashAndBuild()
-                                    .get()
+                                try {
+                                    return@let ResourcePackInfo.resourcePackInfo()
+                                        .id(UUID.nameUUIDFromBytes(spec.ResourcePack.toByteArray(StandardCharsets.UTF_8))) // From Minecraft
+                                        .uri(URI(spec.ResourcePack))
+                                        .computeHashAndBuild()
+                                        .join()
+                                } catch (e: Exception) {
+                                    main.logger.error("Error computing hash and building ResourcePackInfo", e)
+                                    return@let null
+                                }
                             }
                             return@let null
                         }
