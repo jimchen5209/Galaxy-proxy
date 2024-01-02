@@ -115,11 +115,13 @@ class Main : CoroutineScope by CoroutineScope(Dispatchers.Default + SupervisorJo
 
             @Suppress("UnstableApiUsage") proxy.eventManager.register(this, ServerPostConnectEvent::class.java) {
                 if (it.player.currentServer.get().serverInfo.name == "galaxy-lobby") {
+                    it.player.clearResourcePacks()
                     ResourcePackHelper.trySendResourcePack(it.player, "lobby")
                 } else {
                     // TODO: Check Galaxy Type
                     if (it.previousServer?.serverInfo?.name != "galaxy-lobby") return@register
 
+                    it.player.clearResourcePacks()
                     ResourcePackHelper.trySendResourcePack(it.player, "normal_galaxy")
                 }
             }
