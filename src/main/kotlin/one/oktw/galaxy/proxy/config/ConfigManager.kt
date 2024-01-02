@@ -61,6 +61,7 @@ class ConfigManager(private val basePath: Path = Paths.get("config")) {
                     try {
                         main.logger.info("Loading Resource Pack of $galaxyName")
                         val packInfo = galaxies[galaxyName]?.let { spec ->
+                            main.logger.info("ResourcePack: ${spec.ResourcePack}")
                             if (spec.ResourcePack.isNotBlank()) {
                                 return@let ResourcePackInfo.resourcePackInfo()
                                     .id(UUID.nameUUIDFromBytes(spec.ResourcePack.toByteArray(StandardCharsets.UTF_8))) // From Minecraft
