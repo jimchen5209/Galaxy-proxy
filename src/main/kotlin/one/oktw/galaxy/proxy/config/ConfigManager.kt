@@ -2,12 +2,13 @@ package one.oktw.galaxy.proxy.config
 
 import com.google.gson.Gson
 import kotlinx.coroutines.runBlocking
+import net.kyori.adventure.resource.ResourcePackInfo
 import one.oktw.galaxy.proxy.Main.Companion.main
 import one.oktw.galaxy.proxy.config.model.GalaxySpec
 import one.oktw.galaxy.proxy.config.model.ProxyConfig
 import one.oktw.galaxy.proxy.config.model.RedisConfig
-import one.oktw.galaxy.proxy.resourcepack.ResourcePack
 import java.io.InputStream
+import java.net.URI
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
@@ -22,7 +23,7 @@ class ConfigManager(private val basePath: Path = Paths.get("config")) {
     lateinit var redisConfig: RedisConfig
         private set
     val galaxies = HashMap<String, GalaxySpec>()
-    val galaxiesResourcePack = ConcurrentHashMap<String, ResourcePack>()
+    val galaxiesResourcePack = ConcurrentHashMap<String, ResourcePackInfo>()
 
     init {
         readConfig()
@@ -58,7 +59,15 @@ class ConfigManager(private val basePath: Path = Paths.get("config")) {
                     galaxies[galaxyName] = gson.fromJson(json, GalaxySpec::class.java)
                     runBlocking {
                         try {
-                            galaxiesResourcePack[galaxyName] = galaxies[galaxyName]?.let { spec -> if (spec.ResourcePack.isNotBlank()) ResourcePack.new(spec.ResourcePack) else null } ?: return@runBlocking
+                            galaxiesResourcePack[galaxyName] = galaxies[galaxyName]?.let { spec ->
+                                if (spec.ResourcePack.isNotBlank()) {
+                                    return@let ResourcePackInfo.resourcePackInfo()
+                                        .uri(URI(spec.ResourcePack))
+                                        .computeHashAndBuild()
+                                        .get()
+                                }
+                                return@let null
+                            } ?: return@runBlocking
                         } catch (e: Exception) {
                             main.logger.error("Resource pack load failed!", e)
                         }
