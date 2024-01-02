@@ -1,7 +1,6 @@
 package one.oktw.galaxy.proxy.config
 
 import com.google.gson.Gson
-import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.resource.ResourcePackInfo
 import one.oktw.galaxy.proxy.Main.Companion.main
 import one.oktw.galaxy.proxy.config.model.GalaxySpec
@@ -59,21 +58,22 @@ class ConfigManager(private val basePath: Path = Paths.get("config")) {
                 Files.newBufferedReader(file).use { json ->
                     val galaxyName = file.fileName.toString().substringBeforeLast(".")
                     galaxies[galaxyName] = gson.fromJson(json, GalaxySpec::class.java)
-                    runBlocking {
-                        try {
-                            galaxiesResourcePack[galaxyName] = galaxies[galaxyName]?.let { spec ->
-                                if (spec.ResourcePack.isNotBlank()) {
-                                    return@let ResourcePackInfo.resourcePackInfo()
-                                        .id(UUID.nameUUIDFromBytes(spec.ResourcePack.toByteArray(StandardCharsets.UTF_8))) // From Minecraft
-                                        .uri(URI(spec.ResourcePack))
-                                        .computeHashAndBuild()
-                                        .get()
-                                }
-                                return@let null
-                            } ?: return@runBlocking
-                        } catch (e: Exception) {
-                            main.logger.error("Resource pack load failed!", e)
+                    try {
+                        main.logger.info("Loading Resource Pack of $galaxyName")
+                        val packInfo = galaxies[galaxyName]?.let { spec ->
+                            if (spec.ResourcePack.isNotBlank()) {
+                                return@let ResourcePackInfo.resourcePackInfo()
+                                    .id(UUID.nameUUIDFromBytes(spec.ResourcePack.toByteArray(StandardCharsets.UTF_8))) // From Minecraft
+                                    .uri(URI(spec.ResourcePack))
+                                    .computeHashAndBuild()
+                                    .get()
+                            }
+                            return@let null
                         }
+                        main.logger.info("Resource Pack: \n\tID=${galaxiesResourcePack[galaxyName]?.id()}\n\t${galaxiesResourcePack[galaxyName]?.hash()}")
+                        galaxiesResourcePack[galaxyName] = packInfo ?: return
+                    } catch (e: Exception) {
+                        main.logger.error("Resource pack load failed!", e)
                     }
                 }
             }
