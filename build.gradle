@@ -1,7 +1,9 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '2.0.0'
-    id "org.jetbrains.kotlin.kapt" version "2.0.0"
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'org.jetbrains.kotlin.jvm' version '2.0.10'
+    id "org.jetbrains.kotlin.kapt" version "2.0.10"
+    id 'com.gradleup.shadow' version '8.3.0'
 }
 
 group 'one.oktw'
@@ -32,7 +34,7 @@ dependencies {
 }
 
 compileKotlin {
-    kotlinOptions.jvmTarget = "17"
+    compilerOptions.jvmTarget = JvmTarget.JVM_21
 }
 
 tasks.withType(AbstractArchiveTask).configureEach {
